@@ -1,8 +1,7 @@
-package com.shiffler.scopesample;
+package com.shiffler.springpromodule1;
 
-import com.shiffler.scopesample.components.SpringBean1;
-import com.shiffler.scopesample.components.SpringBean2;
-import org.springframework.context.ConfigurableApplicationContext;
+import com.shiffler.springpromodule1.components.PrototypeScopeBean;
+import com.shiffler.springpromodule1.components.SpringBean1;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
@@ -13,11 +12,17 @@ public class Application {
     public static void main(String[] args) {
 
         //Q4 Create a new application context
-       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TopLevelConfig.class);
+       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
         //Q7 This is the preferred way to make sure the context once code is done executing
-       context.registerShutdownHook();
+        context.registerShutdownHook();
 
+       //Q22,23 - This is how we set any profiles we want to activate.
+       //Note that Beans marked with profiles not mentioned here will not show up in the Bean definition list.
+       //Any Bean without a profile is included as long as it is picked up in a scan.
+       context.getEnvironment().setActiveProfiles("databaseaccess");
+       context.register(TopLevelConfig.class);
+       context.refresh();
 
        //Print out the names of all of the Beans Definitions. SpringBean3 should not be visible since its exlcuded
         //from the ComponentScan
@@ -35,15 +40,14 @@ public class Application {
        //SpringBean2 uses singleton scope so we'll get the same bean each time.
        //Since SpringBean1 is  scope it is loaded Lazily (only when needed)
 
+        IntStream.range(0,3).forEach(x -> {
+            PrototypeScopeBean prototypeScopeBean = context.getBean(PrototypeScopeBean.class);
+            System.out.println(prototypeScopeBean);
+        });
 
         IntStream.range(0,3).forEach(x -> {
             SpringBean1 springBean1 = context.getBean(SpringBean1.class);
             System.out.println(springBean1);
-        });
-
-        IntStream.range(0,3).forEach(x -> {
-            SpringBean2 springBean2 = context.getBean(SpringBean2.class);
-            System.out.println(springBean2);
         });
 
         //Q7 we can close the context directly like this but if there is an exception
