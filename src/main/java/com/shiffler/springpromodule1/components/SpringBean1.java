@@ -1,5 +1,6 @@
 package com.shiffler.springpromodule1.components;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 @Component
-public class SpringBean1 {
+public class SpringBean1 implements DisposableBean {
 
     private PrototypeScopeBean prototypeScopeBean;
     private MetaBean metaBean;
@@ -22,6 +23,15 @@ public class SpringBean1 {
     //Q10 -Retrieving an environment variable
     @Value("${LANGUAGE}")
     private String language;
+
+    //Q27 Injection using Spring Expression Language - SPeL
+    @Value("#{'uno'}")
+    private String beanStringInjection;
+
+    //Q27 Injection using Spring Expression Language - SPeL
+    @Value("#{4 * 3457}")
+    private Integer beanIntegerInjection;
+
 
     //Since there are two constructors @Autowired signals to Spring which one should be called so that the
     //dependencies are injected.
@@ -51,11 +61,23 @@ public class SpringBean1 {
         System.out.println("Spring Bean 1 PostConstruct");
         System.out.println("Property Value is " + propertyValue);
         System.out.println("Language is " + language);
+
+        System.out.println("@@@ Spring Bean 1 SPEL Injection " +  beanStringInjection + " @@@");
+
+
     }
 
     //Q5 - Runs before the application context shuts down.
     @PreDestroy
     public void preDestroy(){
         System.out.println("Spring Bean 1 PreDestroy");
+    }
+
+    //Q5 - Runs before the application context shuts down, runs after PreDestroy.
+    //     This comes from implementing DisposableBean
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("Spring Bean 1 Destroy Method");
+
     }
 }
